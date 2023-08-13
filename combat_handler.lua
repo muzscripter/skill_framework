@@ -11,18 +11,9 @@ local function GetPlayerSkillset(Player)
 	return PlayerSkillSets[Player.Name]
 end
 
-
-GetData.OnServerInvoke = function(Player)
-	local skillset = GetPlayerSkillset(Player)
-	if skillset then
-		return skillset.Skills
-	else
-		return {['Empty'] = 'Table'}
-	end
-end
-
 local function InitiatePlayer(Player)
-	print('Creating Player SkillSet')
+    print('Creating Player SkillSet')
+ 
 
 	local PlayerSkillset = Skillset.new(Player)
 
@@ -31,9 +22,10 @@ local function InitiatePlayer(Player)
 	PlayerSkillset:UnlockSkillset('WaterBreathing')
 
 	print('Unlocking Skill')
-
+	
 	PlayerSkillset:UnlockSkill('Water Basin', require(SkillSets['WaterBreathing']))
-
+	PlayerSkillset:UnlockSkill('Water Ripple', require(SkillSets['WaterBreathing']))
+	
 	print('Creating Player SkillSet Table')
 
 	PlayerSkillSets[Player.Name] = PlayerSkillset
@@ -58,6 +50,20 @@ game.Players.PlayerAdded:Connect(function(Player)
 			error('Couldn\'t find player SkillSet')
 		end
 	else
+		InitiatePlayer(Player)
 		error('Couldn\'t find player SkillSet table')
 	end
 end)
+
+GetData.OnServerInvoke = function(Player)
+	
+	local PlayerSkillData = GetPlayerSkillset(Player)
+
+	if PlayerSkillData then
+	
+		return PlayerSkillData
+	else
+	
+		return nil
+	end
+end
