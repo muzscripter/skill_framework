@@ -1,5 +1,5 @@
 return {
-	['Water Basin'] = {
+	['Waterfall Basin'] = {
 		KeyBind = 'Z',
 		ExtraInfo = {
 			CooldownTime = 0.5,
