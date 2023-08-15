@@ -4,6 +4,9 @@ local Skillset = require(ReplicatedStorage.Storage.Modules.Skillset)
 local SkillSets = ReplicatedStorage.Storage.Modules.SkillSets
 
 local GetData = (ReplicatedStorage.Storage.Remotes.GetData)
+local SendData = (ReplicatedStorage.Storage.Remotes.SendData)
+
+local Notify = require(ReplicatedStorage.Storage.Modules.Notification)
 
 local PlayerSkillSets = {}
 
@@ -17,23 +20,19 @@ local function InitiatePlayer(Player)
 
 	local PlayerSkillset = Skillset.new(Player)
 
-	print('Unlocking Skillset')
-
-	PlayerSkillset:UnlockSkillset('WaterBreathing')
-
-	print('Unlocking Skill')
-	
-	PlayerSkillset:UnlockSkill('Water Basin', require(SkillSets['WaterBreathing']))
-	PlayerSkillset:UnlockSkill('Water Ripple', require(SkillSets['WaterBreathing']))
-	
-	print('Creating Player SkillSet Table')
-
 	PlayerSkillSets[Player.Name] = PlayerSkillset
 end
 
 game.Players.PlayerAdded:Connect(function(Player)
 	print('Player Added:', Player.Name)
-	InitiatePlayer(Player)
+	
+	local Sucess, Error = InitiatePlayer(Player)
+	
+	if Sucess then
+		print('Successfully Created Players SkillSet')
+	elseif Error then
+		error('Failed to create Player SkillSet')
+	end
 
 	print('Checking if Player SkillSet Table is made')
 
@@ -50,7 +49,6 @@ game.Players.PlayerAdded:Connect(function(Player)
 			error('Couldn\'t find player SkillSet')
 		end
 	else
-		InitiatePlayer(Player)
 		error('Couldn\'t find player SkillSet table')
 	end
 end)
@@ -67,3 +65,31 @@ GetData.OnServerInvoke = function(Player)
 		return nil
 	end
 end
+
+SendData.OnServerEvent:Connect(function(Player, skillsetName)
+    print(Player, skillsetName)
+
+    local playerSkillset = GetPlayerSkillset(Player)
+
+	if playerSkillset then
+		if skillsetName == 'WaterBreathing' then
+			
+			playerSkillset:UnlockSkillset(skillsetName)
+			
+			playerSkillset:UnlockSkill('Waterfall Basin', require(SkillSets['WaterBreathing']))
+			playerSkillset:UnlockSkill('Drop Ripple Thrust', require(SkillSets['WaterBreathing']))			
+		elseif skillsetName == 'FlameBreathing' then
+			
+			playerSkillset:UnlockSkillset(skillsetName)
+			
+			playerSkillset:UnlockSkill('Flame Barrage', require(SkillSets['FlameBreathing']))
+			playerSkillset:UnlockSkill('Icho No Kata Shiran', require(SkillSets['FlameBreathing']))
+			playerSkillset:UnlockSkill('Ni No Kata Koborienten', require(SkillSets['FlameBreathing']))
+			playerSkillset:UnlockSkill('San No Kata Kienbansyou', require(SkillSets['FlameBreathing']))	
+		end
+		
+        return true
+    else
+        return false
+    end
+end)
